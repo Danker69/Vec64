@@ -137,7 +137,7 @@ function Vec64.new(x: number?, y: number?, z: number?)
         )
     end
 
-    function t:Cross(vector: Vec64)
+    function t:Cross(vector: Vec64): Vec64
         return Vec64.new(
             self.Y * vector.Z - self.Z * vector.Y,
             self.Z * vector.X - self.X * vector.Z,
@@ -166,7 +166,7 @@ function Vec64.new(x: number?, y: number?, z: number?)
         return false
     end
 
-    function t:Lerp(vector: Vec64, alpha: number)
+    function t:Lerp(vector: Vec64, alpha: number): Vec64
         return Vec64.new(
             lerp(self.X, vector.X, alpha),
             lerp(self.Y, vector.Y, alpha),
@@ -174,9 +174,9 @@ function Vec64.new(x: number?, y: number?, z: number?)
         )
     end
 
-    function t:Max(...: Vec64)
+    function t:Max(...: Vec64): Vec64
         local vecs = {...}
-        local max = math.max(self.X, self.Y, self.Z)
+        local max = math.max(self:AsTuple())
 
         for i = 1, #vecs do
             local vec = vecs[i]
@@ -185,9 +185,9 @@ function Vec64.new(x: number?, y: number?, z: number?)
         return Vec64.new(max, max, max)
     end
 
-    function t:Min(...: Vec64)
+    function t:Min(...: Vec64): Vec64
         local vecs = {...}
-        local min = math.min(self.X, self.Y, self.Z)
+        local min = math.min(self:AsTuple())
 
         for i = 1, #vecs do
             local vec = vecs[i]
