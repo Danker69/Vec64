@@ -176,7 +176,7 @@ function Vec64.new(x: number?, y: number?, z: number?)
 
     function t:Max(...: Vec64)
         local vecs = {...}
-        local max = vecs[1].X -- placeholder
+        local max = math.max(self.X, self.Y, self.Z)
 
         for i = 1, #vecs do
             local vec = vecs[i]
@@ -187,7 +187,7 @@ function Vec64.new(x: number?, y: number?, z: number?)
 
     function t:Min(...: Vec64)
         local vecs = {...}
-        local min = vecs[1].X
+        local min = math.min(self.X, self.Y, self.Z)
 
         for i = 1, #vecs do
             local vec = vecs[i]
