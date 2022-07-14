@@ -1,1 +1,0 @@
-"use strict";(self.webpackChunkdocs=self.webpackChunkdocs||[]).push([[343],{7868:function(e){e.exports=JSON.parse('{"sourceUrl":"https://github.com/Danker69/Vec64/blob/master","baseUrl":"/Vec64/","classOrder":[],"apiCategories":[]}')}}]);

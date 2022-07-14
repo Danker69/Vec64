@@ -1,0 +1,1 @@
+"use strict";(self.webpackChunkdocs=self.webpackChunkdocs||[]).push([[680],{82824:function(e){e.exports=JSON.parse('[{"type":"link","href":"/api/Vec64","label":"\u200bVec64"}]')}}]);
