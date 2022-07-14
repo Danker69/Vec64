@@ -4,8 +4,26 @@ local function lerp(start: number, finish: number, alpha: number): number
     return start + ((finish - start) * alpha)
 end
 
-local Vec64 = {}
-Vec64.__index = Vec64
+--[=[
+    @class Vec64
+    The main class holding everything together, uses 64 bit numbers
+]=]
+local Vec64
+Vec64 = setmetatable({}, {
+    __index = function(vec64, index)
+        if index == "zero" then
+            return Vec64.new(0, 0, 0)
+        elseif index == "one" then
+            return Vec64.new(1, 1, 1)
+        elseif index == "xAxis" then
+            return Vec64.new(1, 0, 0)
+        elseif index == "yAxis" then
+            return Vec64.new(0, 1, 0)
+        elseif index == "zAxis" then
+            return Vec64.new(0, 0, 1)
+        end
+    end
+})
 
 function Vec64.new(x: number?, y: number?, z: number?)
     local t = {}
@@ -125,10 +143,22 @@ function Vec64.new(x: number?, y: number?, z: number?)
     mt.Y = y or 0
     mt.Z = z or 0
 
+    --[=[
+        Returns the magnitude (distance) of the vector from (0, 0, 0)
+        @within Vec64
+
+        @return number
+    ]=]
     function t:Magnitude(): number
         return math.sqrt(self.X^2 + self.Y^2 + self.Z^2)
     end
 
+    --[=[
+        Returns the unit (direction) of the vector
+        @within Vec64
+
+        @return Vec64
+    ]=]
     function t:Unit(): Vec64
         return Vec64.new(
             self.X / self:Magnitude(),
@@ -137,7 +167,15 @@ function Vec64.new(x: number?, y: number?, z: number?)
         )
     end
 
-    function t:Cross(vector: Vec64)
+    --[=[
+        Returns the cross product of the two vectors
+        @within Vec64
+
+        @param vector Vec64
+
+        @return Vec64
+    ]=]
+    function t:Cross(vector: Vec64): Vec64
         return Vec64.new(
             self.Y * vector.Z - self.Z * vector.Y,
             self.Z * vector.X - self.X * vector.Z,
@@ -145,6 +183,14 @@ function Vec64.new(x: number?, y: number?, z: number?)
         )
     end
 
+    --[=[
+        Returns the dot product of the two vectors
+        @within Vec64
+
+        @param vector Vec64
+
+        @return Vec64
+    ]=]
     function t:Dot(vector: Vec64): number
         return
             self.X * vector.X +
@@ -152,6 +198,15 @@ function Vec64.new(x: number?, y: number?, z: number?)
             self.Z * vector.Z
     end
 
+    --[=[
+        Returns true if the other `Vec64` falls within the epsilon radius of this `Vec64`
+        @within Vec64
+
+        @param vector Vec64
+        @param epsilon number
+
+        @return boolean
+    ]=]
     function t:FuzzyEq(vector: Vec64, epsilon: number): boolean
         local x = self.X - vector.X
         local y = self.Y - vector.Y
@@ -166,7 +221,16 @@ function Vec64.new(x: number?, y: number?, z: number?)
         return false
     end
 
-    function t:Lerp(vector: Vec64, alpha: number)
+    --[=[
+        Returns a linearly interpolated `Vec64` between itself and the `vector` goal Vec64 by the fraction `alpha`
+        @within Vec64
+
+        @param vector Vec64
+        @param alpha number
+
+        @return Vec64
+    ]=]
+    function t:Lerp(vector: Vec64, alpha: number): Vec64
         return Vec64.new(
             lerp(self.X, vector.X, alpha),
             lerp(self.Y, vector.Y, alpha),
@@ -174,9 +238,17 @@ function Vec64.new(x: number?, y: number?, z: number?)
         )
     end
 
-    function t:Max(...: Vec64)
+    --[=[
+        Returns a `Vec64` where each component is the highest among the respective components of itelf and the provided `Vec64`s
+        @within Vec64
+
+        @param ... Vec64
+
+        @return boolean
+    ]=]
+    function t:Max(...: Vec64): Vec64
         local vecs = {...}
-        local max = math.max(self.X, self.Y, self.Z)
+        local max = math.max(self:AsTuple())
 
         for i = 1, #vecs do
             local vec = vecs[i]
@@ -185,9 +257,17 @@ function Vec64.new(x: number?, y: number?, z: number?)
         return Vec64.new(max, max, max)
     end
 
-    function t:Min(...: Vec64)
+    --[=[
+        Returns a `Vec64` where each component is the lowest among the respective components of itelf and the provided `Vec64`s
+        @within Vec64
+
+        @param ... Vec64
+
+        @return boolean
+    ]=]
+    function t:Min(...: Vec64): Vec64
         local vecs = {...}
-        local min = math.min(self.X, self.Y, self.Z)
+        local min = math.min(self:AsTuple())
 
         for i = 1, #vecs do
             local vec = vecs[i]
@@ -196,10 +276,32 @@ function Vec64.new(x: number?, y: number?, z: number?)
         return Vec64.new(min, min, min)
     end
 
+    --[=[
+        Returns the `Vec64`s components as a Tuple
+        @within Vec64
+
+        @return (number, number, number)
+    ]=]
     function t:AsTuple(): (number, number, number)
         return self.X, self.Y, self.Z
     end
 
+    --[=[
+        Returns a clone of the `Vec64`
+        @within Vec64
+
+        @return Vec64
+    ]=]
+    function t:Clone()
+        return Vec64.new(self.X, self.Y, self.Z)
+    end
+
+    --[=[
+        Returns a `Vector3` if the environment is Roblox, otherwise it returns a `Vec64`
+        @within Vec64
+
+        @return Vec64 | Vector3
+    ]=]
     function t:ToVector3() -- Only works in Roblox environments!!
         if game == nil or workspace == nil then
             print("Roblox environment not detected! Returning Vec64...")
@@ -212,11 +314,47 @@ function Vec64.new(x: number?, y: number?, z: number?)
     return mt
 end
 
-Vec64.zero = Vec64.new(0, 0, 0)
-Vec64.one = Vec64.new(1, 1, 1)
-Vec64.xAxis = Vec64.new(1, 0, 0)
-Vec64.yAxis = Vec64.new(0, 1, 0)
-Vec64.zAxis = Vec64.new(0, 0, 1)
+--[=[
+    @prop zero Vec64
+    @within Vec64
+    
+    Returns a new `Vec64` with the components (0, 0, 0)
+]=]
+--[=[
+    @prop one Vec64
+    @within Vec64
+    
+    Returns a new `Vec64` with the components (1, 1, 1)
+]=]
+--[=[
+    @prop xAxis Vec64
+    @within Vec64
+    
+    Returns a new `Vec64` with the components (1, 0, 0)
+]=]
+--[=[
+    @prop yAxis Vec64
+    @within Vec64
+    
+    Returns a new `Vec64` with the components (0, 1, 0)
+]=]
+--[=[
+    @prop zAxis Vec64
+    @within Vec64
+    
+    Returns a new `Vec64` with the components (0, 0, 1)
+]=]
 
-export type Vec64 = typeof(Vec64.new(0, 0, 0))
+export type Vec64 = typeof(Vec64.new(0, 0, 0)) & {
+    zero: Vec64,
+    one: Vec64,
+    xAxis: Vec64,
+    yAxis: Vec64,
+    zAxis: Vec64,
+}
+--[=[
+    @type Vec64 Vec64
+    @within Vec64
+]=]
+
 return Vec64

@@ -1,0 +1,6 @@
+[footer]
+style = "dark"
+
+[home]
+enabled = true
+includeReadme = true
