@@ -27,12 +27,13 @@ Vec64 = setmetatable({}, {
 
 function Vec64.new(x: number?, y: number?, z: number?)
     local t = {}
+    t.__type = "Vec64"
     t.__index = t
     t.__tostring = function(self: Vec64)
         return tostring(self.X) .. ", " .. tostring(self.Y) .. ", " .. tostring(self.Z)
     end
     t.__concat = function(self: Vec64, value: Vec64)
-        if not value.X then
+        if self.__type ~= "Vec64" then
             error("Concatenated value was not a Vec64!")
         end
         return
@@ -345,13 +346,7 @@ end
     Returns a new `Vec64` with the components (0, 0, 1)
 ]=]
 
-export type Vec64 = typeof(Vec64.new(0, 0, 0)) & {
-    zero: Vec64,
-    one: Vec64,
-    xAxis: Vec64,
-    yAxis: Vec64,
-    zAxis: Vec64,
-}
+export type Vec64 = typeof(Vec64.new(0, 0, 0))
 --[=[
     @type Vec64 Vec64
     @within Vec64
