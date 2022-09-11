@@ -4,6 +4,8 @@ local function lerp(start: number, finish: number, alpha: number): number
     return start + ((finish - start) * alpha)
 end
 
+local sqrt = math.sqrt
+
 --[=[
     @class Vec64
     The main class holding everything together, uses 64 bit numbers
@@ -151,7 +153,7 @@ function Vec64.new(x: number?, y: number?, z: number?)
         @return number
     ]=]
     function t:Magnitude(): number
-        return math.sqrt(self.X^2 + self.Y^2 + self.Z^2)
+        return sqrt(self.X^2 + self.Y^2 + self.Z^2)
     end
 
     --[=[
@@ -161,10 +163,12 @@ function Vec64.new(x: number?, y: number?, z: number?)
         @return Vec64
     ]=]
     function t:Unit(): Vec64
+        local mag = self:Magnitude()
+
         return Vec64.new(
-            self.X / self:Magnitude(),
-            self.Y / self:Magnitude(),
-            self.Z / self:Magnitude()
+            self.X / mag,
+            self.Y / mag,
+            self.Z / mag
         )
     end
 
@@ -177,10 +181,12 @@ function Vec64.new(x: number?, y: number?, z: number?)
         @return Vec64
     ]=]
     function t:Cross(vector: Vec64): Vec64
+        local x, y ,z = self.X, self.Y, self.Z
+
         return Vec64.new(
-            self.Y * vector.Z - self.Z * vector.Y,
-            self.Z * vector.X - self.X * vector.Z,
-            self.X * vector.Y - self.Y * vector.X
+            y * vector.Z - z * vector.Y,
+            z * vector.X - x * vector.Z,
+            x * vector.Y - y * vector.X
         )
     end
 
@@ -283,7 +289,7 @@ function Vec64.new(x: number?, y: number?, z: number?)
 
         @return (number, number, number)
     ]=]
-    function t:AsTuple(): (number, number, number)
+    function t:Components(): (number, number, number)
         return self.X, self.Y, self.Z
     end
 
