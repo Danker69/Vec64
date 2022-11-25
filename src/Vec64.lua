@@ -255,11 +255,11 @@ function Vec64.new(x: number?, y: number?, z: number?)
     ]=]
     function t:Max(...: Vec64): Vec64
         local vecs = {...}
-        local max = math.max(self:AsTuple())
+        local max = math.max(self:Components())
 
         for i = 1, #vecs do
             local vec = vecs[i]
-            max = math.max(max, vec:AsTuple())
+            max = math.max(max, vec:Components())
         end
         return Vec64.new(max, max, max)
     end
@@ -274,11 +274,11 @@ function Vec64.new(x: number?, y: number?, z: number?)
     ]=]
     function t:Min(...: Vec64): Vec64
         local vecs = {...}
-        local min = math.min(self:AsTuple())
+        local min = math.min(self:Components())
 
         for i = 1, #vecs do
             local vec = vecs[i]
-            min = math.min(min, vec:AsTuple())
+            min = math.min(min, vec:Components())
         end
         return Vec64.new(min, min, min)
     end
@@ -314,7 +314,7 @@ function Vec64.new(x: number?, y: number?, z: number?)
             print("Roblox environment not detected! Returning Vec64...")
             return self
         else
-            return Vector3.new(self:AsTuple())
+            return Vector3.new(self:Components())
         end
     end
 
