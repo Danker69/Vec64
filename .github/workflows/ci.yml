@@ -16,15 +16,17 @@ jobs:
           set -e
           echo "Downloading Luau..."
           curl -L -o luau-linux.tar.gz https://github.com/Roblox/luau/releases/latest/download/luau-linux-x64.tar.gz
-          tar -xzf luau-linux.tar.gz
+          echo "Extracting archive..."
+          gunzip < luau-linux.tar.gz > luau-linux.tar
+          tar xf luau-linux.tar
           sudo mv luau /usr/local/bin/luau
           luau --version || true
 
       - name: Install luau-analyze (optional)
         run: |
-          # try to extract luau-analyze from the same tarball if present
-          if tar -tzf luau-linux.tar.gz | grep -q "luau-analyze"; then
-            tar -xzf luau-linux.tar.gz
+          # try to extract luau-analyze from the uncompressed tarball if present
+          if tar tf luau-linux.tar | grep -q "luau-analyze"; then
+            tar xf luau-linux.tar luau-analyze
             sudo mv luau-analyze /usr/local/bin/luau-analyze || true
           else
             echo "luau-analyze not found in release tarball; skipping"
