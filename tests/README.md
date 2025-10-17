@@ -15,6 +15,5 @@ lua tests/test_runner.lua
 ```
 
 Notes:
-- The test runner uses `dofile` to load `src/Vec64.lua` so it runs without requiring module packaging.
 - The project uses Luau type annotations; running via the Luau CLI will execute the code and ignore typecheck warnings from static analysis.
 - If you see typechecker warnings inside your editor, they are from static analysis. The tests are runtime checks and should indicate pass/fail when run in the chosen interpreter.
