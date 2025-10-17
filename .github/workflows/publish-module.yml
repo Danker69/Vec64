@@ -77,12 +77,3 @@ jobs:
           files: ${{ steps.prep.outputs.artifact }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Upload release asset (redundant safe-step)
-        if: steps.create_release.outcome == 'success'
-        uses: actions/upload-release-asset@v1
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ${{ steps.prep.outputs.artifact }}
-          asset_name: ${{ steps.prep.outputs.artifact }}
-          asset_content_type: application/zip
