@@ -16,9 +16,15 @@ jobs:
           set -e
           echo "Downloading Luau..."
           curl -L -o luau-ubuntu.zip https://github.com/Roblox/luau/releases/latest/download/luau-ubuntu.zip
-          unzip luau-ubuntu.zip
-          sudo mv luau /usr/local/bin/
+          
+          echo "Extracting Luau binaries..."
+          unzip -d luau-bins luau-ubuntu.zip
+          ls -la luau-bins
+          
+          echo "Installing Luau..."
+          sudo mv luau-bins/luau /usr/local/bin/
           sudo chmod +x /usr/local/bin/luau
+          
           echo "Testing Luau installation..."
           which luau
           ls -l /usr/local/bin/luau
