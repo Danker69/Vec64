@@ -84,9 +84,8 @@ local function load_src(path)
     error("No available loader succeeded to load module: " .. tostring(path))
 end
 
--- Load the canonical Vec64 implementation. `v64n.luau` was merged back into `src/Vec64.lua`,
--- so we only load `src/Vec64.lua` now.
-local Vec64 = load_src("src/Vec64.lua")
+-- Load the canonical Vec64 implementation. `v64n.luau` is the latest version.
+local Vec64 = load_src("src/v64n.luau")
 
 local eps = 1e-9
 local function approx(a, b)
