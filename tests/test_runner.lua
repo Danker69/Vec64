@@ -1,137 +1,21 @@
 -- Tests for Vec64 module
 -- Run with the Luau CLI: `luau tests/test_runner.lua`
 
--- Load Vec64 module using loadfile for compatibility with Luau
-local function try_io_load(path)
-    if type((_G["io"] :: any)) == "table" and type(((_G["io"] :: any).open)) == "function" then
-        local fh = (_G["io"] :: any).open(path, "r")
-        if fh then
-            local content = fh:read("*a")
-            fh:close()
-            if type((_G["load"] :: any)) == "function" then
-                local f, _err = (_G["load"] :: any)(content, path)
-                if f then
-                    return f()
-                end
-            elseif type((_G["loadstring"] :: any)) == "function" then
-                local f, _err = (_G["loadstring"] :: any)(content)
-                if f then
-                    return f()
-                end
-            end
+-- Since we're in the tests directory, tell Luau to also look in the parent's src directory
+local function absolutePath()
+    local currentPath = debug.info(1, "s")
+    if currentPath then
+        local lastSlash = string.find(string.reverse(currentPath), "/") or string.find(string.reverse(currentPath), "\\")
+        if lastSlash then
+            return string.sub(currentPath, 1, #currentPath - lastSlash + 1)
         end
     end
-    return nil
+    return "./"
 end
 
-local function try_loadfile(path)
-    if type((_G["loadfile"] :: any)) == "function" then
-        local ok, f = pcall((_G["loadfile"] :: any), path)
-        if ok and type(f) == "function" then
-            return f()
-        end
-    end
-    return nil
-end
-
-local function try_dofile(path)
-    if type((_G["dofile"] :: any)) == "function" then
-        local ok, res = pcall((_G["dofile"] :: any), path)
-        if ok then
-            return res
-        end
-    end
-    return nil
-end
-
-local function try_require_variants(path)
-    if type((_G["require"] :: any)) ~= "function" then
-        return nil
-    end
-    local variants = {
-        "src.Vec64",
-        "src/Vec64",
-        "Vec64",
-        "./src/Vec64",
-        "src/Vec64.lua",
-    }
-    for _, name in ipairs(variants) do
-        local ok, res = pcall((_G["require"] :: any), name)
-        if ok and res ~= nil then
-            return res
-        end
-    end
-    return nil
-end
-
-local function load_src(path)
-    print("Attempting to load: " .. tostring(path))
-    
-    -- try io.open + load
-    local res = try_io_load(path)
-    if res ~= nil then 
-        print("Successfully loaded via io.open: " .. path)
-        return res 
-    end
-
-    -- try loadfile
-    res = try_loadfile(path)
-    if res ~= nil then 
-        print("Successfully loaded via loadfile: " .. path)
-        return res 
-    end
-
-    -- try dofile
-    res = try_dofile(path)
-    if res ~= nil then 
-        print("Successfully loaded via dofile: " .. path)
-        return res 
-    end
-
-    -- try require variants
-    res = try_require_variants(path)
-    if res ~= nil then 
-        print("Successfully loaded via require: " .. path)
-        return res 
-    end
-
-    print("Failed to load: " .. tostring(path))
-    return nil
-end
-
--- Try multiple potential paths to find Vec64
-local paths = {
-    "src/Vec64.lua",
-    "./src/Vec64.lua",
-    "../src/Vec64.lua"
-}
-
-local Vec64
-local errors = {}
-for _, path in ipairs(paths) do
-    print("\nTrying path: " .. path)
-    local success, result = pcall(load_src, path)
-    if success and result then
-        Vec64 = result
-        print("Successfully loaded Vec64 from: " .. path)
-        break
-    else
-        table.insert(errors, "Failed path " .. path .. ": " .. tostring(result))
-    end
-end
-
-if not Vec64 then
-    print("\nAll load attempts failed:")
-    for _, err in ipairs(errors) do
-        print(" - " .. err)
-    end
-    -- Use pcall to avoid completely halting execution
-    local ok, err = pcall(error, "Could not load Vec64 module from any path")
-    if not ok then
-        print("Fatal error: " .. tostring(err))
-        -- Let test runner continue to show all errors
-    end
-end
+-- Add the src directory to the module search path
+local testPath = absolutePath()
+local Vec64 = require(testPath .. "../src/Vec64")
 
 local eps = 1e-9
 local function approx(a, b)
