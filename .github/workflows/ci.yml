@@ -15,10 +15,18 @@ jobs:
         run: |
           set -e
           echo "Downloading Luau..."
-          curl -L -o luau-linux.tar.gz https://github.com/Roblox/luau/releases/latest/download/luau-linux-x64.tar.gz
-          echo "Extracting archive..."
-          gunzip < luau-linux.tar.gz > luau-linux.tar
-          tar xf luau-linux.tar
+          curl -L -o luau-download https://github.com/Roblox/luau/releases/latest/download/luau-linux-x64.tar.gz
+          
+          # Check if it's a gzipped file or raw binary
+          if file luau-download | grep -q "gzip"; then
+            echo "Detected gzip format, extracting..."
+            mv luau-download luau-linux.tar.gz
+            tar xzf luau-linux.tar.gz
+          else
+            echo "Detected raw binary, installing directly..."
+            chmod +x luau-download
+            sudo mv luau-download /usr/local/bin/luau
+          fi
           sudo mv luau /usr/local/bin/luau
           luau --version || true
 
