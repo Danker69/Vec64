@@ -15,8 +15,11 @@ jobs:
         run: |
           set -e
           echo "Downloading Luau..."
-          sudo curl -L -o /usr/local/bin/luau https://github.com/Roblox/luau/releases/latest/download/luau-linux-x64.tar.gz
+          sudo curl -L -o /usr/local/bin/luau https://github.com/Roblox/luau/releases/latest/download/luau-ubuntu.x64
           sudo chmod +x /usr/local/bin/luau
+          echo "Testing Luau installation..."
+          which luau
+          ls -l /usr/local/bin/luau
           sudo mv luau /usr/local/bin/luau
           luau --version || true
 
