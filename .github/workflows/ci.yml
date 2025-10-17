@@ -1,0 +1,47 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install Luau
+        run: |
+          set -e
+          echo "Downloading Luau..."
+          curl -L -o luau-linux.tar.gz https://github.com/Roblox/luau/releases/latest/download/luau-linux-x64.tar.gz
+          tar -xzf luau-linux.tar.gz
+          sudo mv luau /usr/local/bin/luau
+          luau --version || true
+
+      - name: Install luau-analyze (optional)
+        run: |
+          # try to extract luau-analyze from the same tarball if present
+          if tar -tzf luau-linux.tar.gz | grep -q "luau-analyze"; then
+            tar -xzf luau-linux.tar.gz
+            sudo mv luau-analyze /usr/local/bin/luau-analyze || true
+          else
+            echo "luau-analyze not found in release tarball; skipping"
+          fi
+
+      - name: Luau type-check
+        run: |
+          set -e
+          echo "Running Luau type checks..."
+          if command -v luau-analyze >/dev/null 2>&1; then
+            luau-analyze src tests || true
+          elif luau -t --help >/dev/null 2>&1; then
+            luau -t src tests || true
+          else
+            echo "No Luau analyzer available; skipping type checks"
+          fi
+
+      - name: Run tests
+        run: |
+          luau tests/test_runner.lua

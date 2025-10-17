@@ -4,3 +4,6 @@ style = "dark"
 [home]
 enabled = true
 includeReadme = true
+
+[docusaurus]
+gitSourceBranch = "main"

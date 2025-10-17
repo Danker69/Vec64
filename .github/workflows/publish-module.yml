@@ -1,0 +1,64 @@
+name: Publish Vec64 release
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'
+  workflow_dispatch:
+
+jobs:
+  build-and-release:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      packages: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up zip
+        run: sudo apt-get update && sudo apt-get install -y zip >/dev/null
+
+      - name: Prepare release artifact
+        id: prep
+        run: |
+          set -e
+          mkdir -p release
+          cp README.md LICENSE release/ || true
+          # derive tag name from GITHUB_REF when present
+          if [ -n "${GITHUB_REF:-}" ]; then
+            TAG=${GITHUB_REF#refs/tags/}
+          else
+            TAG=untagged
+          fi
+          # prefer src/Vec64.lua or src/Vec64.luau
+          if [ -f src/Vec64.lua ]; then
+            cp src/Vec64.lua release/Vec64.lua
+          elif [ -f src/Vec64.luau ]; then
+            cp src/Vec64.luau release/Vec64.lua
+          else
+            echo "No source Vec64 file found in src/" >&2
+            exit 1
+          fi
+          cd release
+          ZIPNAME="vec64-${TAG}.zip"
+          zip -r ../${ZIPNAME} .
+          cd ..
+          echo "artifact=${ZIPNAME}" >> $GITHUB_OUTPUT
+
+      - name: Create GitHub Release
+        id: create_release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: ${{ steps.prep.outputs.artifact }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Upload release asset (redundant safe-step)
+        if: steps.create_release.outcome == 'success'
+        uses: actions/upload-release-asset@v1
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ${{ steps.prep.outputs.artifact }}
+          asset_name: ${{ steps.prep.outputs.artifact }}
+          asset_content_type: application/zip
