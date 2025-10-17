@@ -1,21 +1,30 @@
 -- Tests for Vec64 module
 -- Run with the Luau CLI: `luau tests/test_runner.lua`
 
--- Since we're in the tests directory, tell Luau to also look in the parent's src directory
-local function absolutePath()
-    local currentPath = debug.info(1, "s")
-    if currentPath then
-        local lastSlash = string.find(string.reverse(currentPath), "/") or string.find(string.reverse(currentPath), "\\")
-        if lastSlash then
-            return string.sub(currentPath, 1, #currentPath - lastSlash + 1)
+-- Load Vec64 module (try multiple paths to handle different environments)
+local function findModule()
+    local paths = {
+        "./src/Vec64",
+        "../src/Vec64",
+        "src/Vec64",
+        "./src/Vec64.luau",
+        "../src/Vec64.luau",
+        "src/Vec64.luau"
+    }
+    
+    local lastError
+    for _, path in ipairs(paths) do
+        local success, result = pcall(require, path)
+        if success then
+            return result
         end
+        lastError = result
     end
-    return "./"
+    
+    error("Failed to load Vec64 module: " .. tostring(lastError))
 end
 
--- Add the src directory to the module search path
-local testPath = absolutePath()
-local Vec64 = require(testPath .. "../src/Vec64")
+local Vec64 = findModule()
 
 local eps = 1e-9
 local function approx(a, b)
