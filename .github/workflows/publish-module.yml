@@ -23,28 +23,52 @@ jobs:
         id: prep
         run: |
           set -e
+          echo "Creating release directory..."
           mkdir -p release
+          
+          echo "Copying documentation and license files..."
           cp README.md LICENSE release/ || true
+          
           # derive tag name from GITHUB_REF when present
           if [ -n "${GITHUB_REF:-}" ]; then
             TAG=${GITHUB_REF#refs/tags/}
           else
             TAG=untagged
           fi
+          echo "Using tag: ${TAG}"
+          
           # prefer src/Vec64.lua or src/Vec64.luau
+          echo "Copying Vec64 module..."
           if [ -f src/Vec64.lua ]; then
+            echo "Found src/Vec64.lua"
             cp src/Vec64.lua release/Vec64.lua
           elif [ -f src/Vec64.luau ]; then
+            echo "Found src/Vec64.luau"
             cp src/Vec64.luau release/Vec64.lua
           else
             echo "No source Vec64 file found in src/" >&2
+            ls -la src/
             exit 1
           fi
-          cd release
+          
+          echo "Creating zip archive..."
           ZIPNAME="vec64-${TAG}.zip"
-          zip -r ../${ZIPNAME} .
+          cd release
+          zip -r ../${ZIPNAME} . || {
+            echo "Failed to create zip file. Contents of release directory:"
+            ls -la
+            exit 1
+          }
           cd ..
-          echo "artifact=${ZIPNAME}" >> $GITHUB_OUTPUT
+          
+          echo "Verifying zip file..."
+          if [ -f "${ZIPNAME}" ]; then
+            echo "Successfully created ${ZIPNAME}"
+            echo "artifact=${ZIPNAME}" >> $GITHUB_OUTPUT
+          else
+            echo "Failed to create zip file" >&2
+            exit 1
+          fi
 
       - name: Create GitHub Release
         id: create_release
