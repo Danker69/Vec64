@@ -101,9 +101,9 @@ end
 
 -- Try multiple potential paths to find Vec64
 local paths = {
-    "src/Vec64.luau",
-    "./src/Vec64.luau",
-    "../src/Vec64.luau"
+    "src/Vec64.lua",
+    "./src/Vec64.lua",
+    "../src/Vec64.lua"
 }
 
 local Vec64
