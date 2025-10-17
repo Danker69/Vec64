@@ -65,27 +65,73 @@ local function try_require_variants(path)
 end
 
 local function load_src(path)
+    print("Attempting to load: " .. tostring(path))
+    
     -- try io.open + load
     local res = try_io_load(path)
-    if res ~= nil then return res end
+    if res ~= nil then 
+        print("Successfully loaded via io.open: " .. path)
+        return res 
+    end
 
     -- try loadfile
     res = try_loadfile(path)
-    if res ~= nil then return res end
+    if res ~= nil then 
+        print("Successfully loaded via loadfile: " .. path)
+        return res 
+    end
 
     -- try dofile
     res = try_dofile(path)
-    if res ~= nil then return res end
+    if res ~= nil then 
+        print("Successfully loaded via dofile: " .. path)
+        return res 
+    end
 
     -- try require variants
     res = try_require_variants(path)
-    if res ~= nil then return res end
+    if res ~= nil then 
+        print("Successfully loaded via require: " .. path)
+        return res 
+    end
 
-    error("No available loader succeeded to load module: " .. tostring(path))
+    print("Failed to load: " .. tostring(path))
+    return nil
 end
 
--- Load the Vec64 implementation. Try both relative and parent-relative paths
-local Vec64 = load_src("src/Vec64.lua") or load_src("../src/Vec64.lua")
+-- Try multiple potential paths to find Vec64
+local paths = {
+    "src/Vec64.lua",
+    "./src/Vec64.lua",
+    "../src/Vec64.lua"
+}
+
+local Vec64
+local errors = {}
+for _, path in ipairs(paths) do
+    print("\nTrying path: " .. path)
+    local success, result = pcall(load_src, path)
+    if success and result then
+        Vec64 = result
+        print("Successfully loaded Vec64 from: " .. path)
+        break
+    else
+        table.insert(errors, "Failed path " .. path .. ": " .. tostring(result))
+    end
+end
+
+if not Vec64 then
+    print("\nAll load attempts failed:")
+    for _, err in ipairs(errors) do
+        print(" - " .. err)
+    end
+    -- Use pcall to avoid completely halting execution
+    local ok, err = pcall(error, "Could not load Vec64 module from any path")
+    if not ok then
+        print("Fatal error: " .. tostring(err))
+        -- Let test runner continue to show all errors
+    end
+end
 
 local eps = 1e-9
 local function approx(a, b)
